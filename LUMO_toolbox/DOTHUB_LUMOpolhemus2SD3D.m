@@ -1,3 +1,4 @@
+
  function [SD3D, SD3DFileName] = DOTHUB_LUMOpolhemus2SD3D(posCSVFileName,infantFlag,saveFlag)
 
 %This script takes the polhemus data associated with the measurement
@@ -46,26 +47,35 @@ if ~exist('posCSVFileName','var')
     posCSVFileName = fullfile(path,file);
 end
 
+sprungFlag = 0;
 mixedFlag = 0;
 if ~exist('infantFlag','var')
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
+%     answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
+    answer = DOTHUB_LUMOcustomDialog();
     if strcmp(answer,'INFANT')
         infantFlag = 1;
     elseif strcmp(answer,'ADULT')
         infantFlag = 0;
     elseif  strcmp(answer,'MIXED')
         mixedFlag = 1;
+    elseif  strcmp(answer, 'M SPRUNG')
+        sprungFlag = 1;
+        infantFlag = 0;
     else
         return
     end
 elseif isempty(infantFlag)
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
+    %answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
+    answer = DOTHUB_LUMOcustomDialog();
     if strcmp(answer,'INFANT')
         infantFlag = 1;
     elseif strcmp(answer,'ADULT')
         infantFlag = 0;
     elseif  strcmp(answer,'MIXED')
         mixedFlag = 1;
+    elseif  strcmp(answer, 'M SPRUNG')
+        sprungFlag = 1;
+        infantFlag = 0;
     else
         return
     end   
@@ -138,7 +148,11 @@ if mixedFlag
 elseif infantFlag==1
     offset = ones(nTiles,1)*12.94; %Infant offset length (mm)
 elseif infantFlag==0
-    offset = ones(nTiles,1)*18.75; %Adult offset length (mm)
+    if sprungFlag==1
+        offset = ones(nTiles,1)*(18.75 + 3.5);
+    else
+        offset = ones(nTiles,1)*18.75; %Adult offset length (mm)
+    end
 end
 
 %Translate and Rotate so that Iz is at 0 0 0, Nz is at 0 y 0, Ar and Al have same z
@@ -350,5 +364,3 @@ if saveFlag
     fprintf(['Saving SD3D to ' SD3DFileName ' ...\n']);
     save(SD3DFileName,'SD3D');
 end
-
-
