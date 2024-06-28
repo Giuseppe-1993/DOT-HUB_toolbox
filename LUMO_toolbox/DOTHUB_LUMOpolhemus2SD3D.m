@@ -149,7 +149,7 @@ elseif infantFlag==1
     offset = ones(nTiles,1)*12.94; %Infant offset length (mm)
 elseif infantFlag==0
     if sprungFlag==1
-        offset = ones(nTiles,1)*(18.75 + 3.5);
+        offset = ones(nTiles,1)*(18.75 + 3.5); %Medium Sprung offset length (mm)
     else
         offset = ones(nTiles,1)*18.75; %Adult offset length (mm)
     end
