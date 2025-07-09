@@ -41,34 +41,59 @@
 
 %Manage Inputs ###########################################################
 %#########################################################################
+% Variables
+slg_Flag = -1;              % flag to determine whether the user has selected SLGs
+LG_length_Flag = 0;         % flag to determine if the user uses fixed LGs
+FLG_infant = 12.94;         % TOTAL offset of the infant fixed light guide used when offsetting the Polhemus values
+FLG_adult = 18.75;          % TOTAL offset of the adult fixed light guide used when offsetting the Polhemus values
+
+% Calculate the SLGs offset 
+%   offset = fully extended movable light guide - compression in mm
+%   where compression = 3.2 mm * 0.3 for 30% compression
+
+% length of fully extended movable light guide for a short SLG
+SLG_short_full_l = 3.2; 
+SLG_medium_full_l = 5.24; 
+SLG_long_full_l = 9.13;
+
+short_SLG_compression = 0.32; % The compression value (compression/100)
+medium_SLG_compression = 0.14;
+long_SLG_compression = 0.14;
+
+SLG_short_compression = short_SLG_compression * SLG_short_full_l; % length of the compression (in mm)
+SLG_medium_compression = medium_SLG_compression * SLG_medium_full_l;
+SLG_long_compression = long_SLG_compression * SLG_long_full_l;
+
+SLG_short_offset = SLG_short_full_l - SLG_short_compression;     % offset (in mm) of the Short SLGs (32%)
+SLG_medium_offset = SLG_medium_full_l - SLG_medium_compression;    % offset (in mm) of the Medium SLGs (14%)
+SLG_long_offset = SLG_long_full_l - SLG_long_compression;      % offset (in mm)of the Long SLGs (14%)
+
 if ~exist('posCSVFileName','var')
     [file,path] = uigetfile('*.csv','Select Polhemus data set (.csv)','MultiSelect','on');
     posCSVFileName = fullfile(path,file);
 end
 
-mixedFlag = 0;
-if ~exist('infantFlag','var')
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
-    if strcmp(answer,'INFANT')
-        infantFlag = 1;
-    elseif strcmp(answer,'ADULT')
-        infantFlag = 0;
-    elseif  strcmp(answer,'MIXED')
-        mixedFlag = 1;
-    else
-        return
+    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','SLGs','ADULT');
+    switch answer
+        case 'INFANT'
+            LG_length_Flag = 0;
+        case 'ADULT'
+            LG_length_Flag = 1;
+        case 'SLGs'
+            LG_length_Flag = 2;
     end
-elseif isempty(infantFlag)
-    answer = questdlg('Which light-guides were used in this array?','Select light guide type','ADULT','INFANT','MIXED','ADULT');
-    if strcmp(answer,'INFANT')
-        infantFlag = 1;
-    elseif strcmp(answer,'ADULT')
-        infantFlag = 0;
-    elseif  strcmp(answer,'MIXED')
-        mixedFlag = 1;
-    else
-        return
-    end   
+
+% SLG selection
+if LG_length_Flag == 2
+   answer = questdlg('What length of SLGs did you use?', 'Select SLG Length', 'SHORT', 'MEDIUM', 'LONG', 'MEDIUM');
+   switch answer
+       case 'SHORT'
+           slg_Flag = 0;
+       case 'MEDIUM'
+           slg_Flag = 1;
+       case 'LONG'
+           slg_Flag = 2;
+   end
 end
 
 if ~exist('saveFlag','var')
@@ -118,27 +143,24 @@ else
     nTiles = size(PolPoints,1)/3;
 end
 
-%Define offsets vector
-if mixedFlag
-    prompt = 'Enter nTile space-separated values of 1 (Adult) and 0 (Infant)';
-    dlgtitle = 'Light guide specification';
-    dims = [1 45];
-    answer = inputdlg(prompt,dlgtitle,dims);
-    answer = str2num(cell2mat(answer));
-    if isempty(answer)
-        error('No light guide specification provided')
-    else
-        offset = zeros(nTiles,1);
-        offset(answer==1) = 18.75;
-        offset(answer==0) = 12.94;
-        if any(offset==0)
-            error('Error in light guide specification')
-        end
-    end      
-elseif infantFlag==1
-    offset = ones(nTiles,1)*12.94; %Infant offset length (mm)
-elseif infantFlag==0
-    offset = ones(nTiles,1)*18.75; %Adult offset length (mm)
+%Define the offsets vector
+if LG_length_Flag==2 % 2=SLG
+    
+    switch slg_Flag
+        case 0
+            offset = ones(nTiles,1)*(FLG_adult + SLG_short_offset);     %short SLG offset (mm)
+        case 1
+            offset = ones(nTiles,1)*(FLG_adult + SLG_medium_offset);     %medium SLG offset (mm)
+        case 2
+            offset = ones(nTiles,1)*(FLG_adult + SLG_long_offset);     %long SLG offset (mm)
+    end
+else 
+    switch  LG_length_Flag
+        case 0
+            offset = ones(nTiles,1)*FLG_infant; %Infant offset length (mm)
+        case 1
+            offset = ones(nTiles,1)*FLG_adult; %Adult offset length (mm)
+    end
 end
 
 %Translate and Rotate so that Iz is at 0 0 0, Nz is at 0 y 0, Ar and Al have same z
