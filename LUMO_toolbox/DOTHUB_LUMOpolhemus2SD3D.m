@@ -41,32 +41,35 @@
 
 %Manage Inputs ###########################################################
 %#########################################################################
+
 % Variables
 slg_Flag = -1;              % flag to determine whether the user has selected SLGs
 LG_length_Flag = 0;         % flag to determine if the user uses fixed LGs
 FLG_infant = 12.94;         % TOTAL offset of the infant fixed light guide used when offsetting the Polhemus values
 FLG_adult = 18.75;          % TOTAL offset of the adult fixed light guide used when offsetting the Polhemus values
 
-% Calculate the SLGs offset 
-%   offset = fully extended movable light guide - compression in mm
-%   where compression = 3.2 mm * 0.3 for 30% compression
+% Physical length of the movable light guide component. DO NOT CHANGE. 
+short_SLG_full_l = 3.2; % fully extended movable light guide for a short SLG
+medium_SLG_full_l = 5.24; 
+long_SLG_full_l = 9.13;
 
-% length of fully extended movable light guide for a short SLG
-SLG_short_full_l = 3.2; 
-SLG_medium_full_l = 5.24; 
-SLG_long_full_l = 9.13;
-
-short_SLG_compression = 0.32; % The compression value (compression/100)
+% The compression value (compression in % / 100)
+% Note: These values correspond to the average compression values
+% obtained across subjects (N=3). 
+short_SLG_compression = 0.32; 
 medium_SLG_compression = 0.14;
 long_SLG_compression = 0.14;
 
-SLG_short_compression = short_SLG_compression * SLG_short_full_l; % length of the compression (in mm)
-SLG_medium_compression = medium_SLG_compression * SLG_medium_full_l;
-SLG_long_compression = long_SLG_compression * SLG_long_full_l;
+% Length of the movable light guide(in mm) after being compressed
+short_SLG_compression_l = short_SLG_compression * short_SLG_full_l; 
+medium_SLG_compression_l = medium_SLG_compression * medium_SLG_full_l;
+long_SLG_compression_l = long_SLG_compression * long_SLG_full_l;
 
-SLG_short_offset = SLG_short_full_l - SLG_short_compression;     % offset (in mm) of the Short SLGs (32%)
-SLG_medium_offset = SLG_medium_full_l - SLG_medium_compression;    % offset (in mm) of the Medium SLGs (14%)
-SLG_long_offset = SLG_long_full_l - SLG_long_compression;      % offset (in mm)of the Long SLGs (14%)
+% Calculate the SLGs offset 
+%   offset = fully extended movable light guide - compression length
+SLG_short_offset = SLG_short_full_l - short_SLG_compression_l;     
+SLG_medium_offset = SLG_medium_full_l - medium_SLG_compression_l;   
+SLG_long_offset = SLG_long_full_l - long_SLG_compression_l;      
 
 if ~exist('posCSVFileName','var')
     [file,path] = uigetfile('*.csv','Select Polhemus data set (.csv)','MultiSelect','on');
