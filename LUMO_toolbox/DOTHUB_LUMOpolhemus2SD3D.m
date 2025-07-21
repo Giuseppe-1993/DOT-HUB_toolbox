@@ -67,9 +67,9 @@ long_SLG_compression_l = long_SLG_compression * long_SLG_full_l;
 
 % Calculate the SLGs offset 
 %   offset = fully extended movable light guide - compression length
-SLG_short_offset = SLG_short_full_l - short_SLG_compression_l;     
-SLG_medium_offset = SLG_medium_full_l - medium_SLG_compression_l;   
-SLG_long_offset = SLG_long_full_l - long_SLG_compression_l;      
+short_SLG_offset = short_SLG_full_l - short_SLG_compression_l;     
+medium_SLG_offset = medium_SLG_full_l - medium_SLG_compression_l;   
+long_SLG_offset = long_SLG_full_l - long_SLG_compression_l;      
 
 if ~exist('posCSVFileName','var')
     [file,path] = uigetfile('*.csv','Select Polhemus data set (.csv)','MultiSelect','on');
@@ -151,11 +151,11 @@ if LG_length_Flag==2 % 2=SLG
     
     switch slg_Flag
         case 0
-            offset = ones(nTiles,1)*(FLG_adult + SLG_short_offset);     %short SLG offset (mm)
+            offset = ones(nTiles,1)*(FLG_adult + short_SLG_offset);     %short SLG offset (mm)
         case 1
-            offset = ones(nTiles,1)*(FLG_adult + SLG_medium_offset);     %medium SLG offset (mm)
+            offset = ones(nTiles,1)*(FLG_adult + medium_SLG_offset);     %medium SLG offset (mm)
         case 2
-            offset = ones(nTiles,1)*(FLG_adult + SLG_long_offset);     %long SLG offset (mm)
+            offset = ones(nTiles,1)*(FLG_adult + long_SLG_offset);     %long SLG offset (mm)
     end
 else 
     switch  LG_length_Flag
