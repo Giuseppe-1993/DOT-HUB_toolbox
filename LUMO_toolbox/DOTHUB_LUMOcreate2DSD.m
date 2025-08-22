@@ -204,11 +204,20 @@ bt3.ButtonPushedFcn = @Load2Dfile;
     end
 
     function RotateGrid(~,~)
-        grid = rotz(grid,90,[0 0 0]);
-        orientations = round((orientations)/30)*30 + 90;
+        grid = rotz(grid,180,[0 0 0]);
+        orientations = orientations + 180;
         orientations(orientations>360) = orientations(orientations>360)-360;
+        
         %Force to grid
         [centers] = Nearest_node_RJC(centers_zero,grid);
+        
+        %Get min and max so that the rotation is done around the centre of the points of the grid
+        minC = min(centers(:,:));
+        maxC = max(centers(:,:));
+        
+        [Origin] = (maxC+minC)/2;
+        
+        [centers] = rotz(centers, 180, Origin);
         
         uit.Data(:,1:2) = centers(:,1:2);
         uit.Data(:,3) = orientations;
