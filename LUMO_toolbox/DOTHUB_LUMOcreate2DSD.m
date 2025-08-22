@@ -209,7 +209,7 @@ bt3.ButtonPushedFcn = @Load2Dfile;
         orientations(orientations>360) = orientations(orientations>360)-360;
         
         %Force to grid
-        [centers] = Nearest_node_RJC(centers_zero,grid);
+        %[centers] = Nearest_node_RJC(centers_zero,grid);
         
         %Get min and max so that the rotation is done around the centre of the points of the grid
         minC = min(centers(:,:));
