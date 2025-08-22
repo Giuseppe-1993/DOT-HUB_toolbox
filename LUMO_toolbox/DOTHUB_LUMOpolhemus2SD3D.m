@@ -112,7 +112,7 @@ if isempty(ext)
     ext = '.csv';
 end
 posCSVFileName = fullfile(path,[name ext]);
-SD3DFileName = fullfile(path,[name '.SD3D']);
+SD3DFileName = fullfile(path,[(strcat(name, '_', answer)) '.SD3D']);
 
 %Wavelengths
 wavelength1 = 735;
